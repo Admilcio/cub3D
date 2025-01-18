@@ -47,12 +47,38 @@ typedef struct s_game
     int size_line;
     int endian;
     t_player player;
-    
+
     char **map;
 } t_game;
+
+typedef struct {
+    char **map;       
+    int rows;        
+    int cols;       
+    int player_x; 
+    int player_y;    
+    char player_dir;
+    void		*mlx;
+	void		*wnd;
+    int         x;
+    int         y;
+} Map;
 
 void init_player(t_player *player);
 int key_release(int keycode, t_player *player);
 int key_press(int keycode, t_player *player);
 void move_player(t_player *player);
+
+//get next line
+char	*get_next_line(int fd);
+
+int		line_updater(char **line, char buffer[]);
+int		ft_strlenm(char const *s1);
+char	*ft_strjoinm(char const *s1, char const *s2);
+void	buffer_clear(char *buffer);
+char	*buffer_total_clear(int fd, char **buffer, char *line);
+
+//parsing map 
+
+bool parse_map(Map *map);4
 #endif
