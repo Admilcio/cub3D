@@ -1,4 +1,4 @@
-#include "./includes/cubo.h"
+#include "../includes/cubo.h"
 
 // our own put_pixel
 
@@ -74,32 +74,91 @@ bool touch_wall(float px, float py, t_game *game)
 }
 
 // initialisation functions
-char **get_map(void)
-{
-    char **map = malloc(sizeof(char *) * 11);
-    map[0] = "111111111111111";
-    map[1] = "100010000000001";
-    map[2] = "100000000010001";
-    map[3] = "100000100000001";
-    map[4] = "100100000000001";
-    map[5] = "100000010000001";
-    map[6] = "100001000000001";
-    map[7] = "100000000000101";
-    map[8] = "101000000000001";
-    map[9] = "111111111111111";
-    map[10] = NULL;
-    return (map);
+t_game *read_map_from_file(t_game *game , const char *filename) {
+    int fd = open(filename, O_RDONLY);
+    if (fd == -1) {
+        perror("Erro ao abrir o arquivo");
+        return NULL;
+    }
+
+    game->map = NULL;
+    game->rows = 0;
+    game->cols = 0;
+
+    char *line;
+    while ((line = get_next_line(fd)) != NULL) {
+        // Remover '\n' no final da linha, se existir
+        size_t len = strlen(line);
+        if (len > 0 && line[len - 1] == '\n') {
+            line[len - 1] = '\0';
+            len--;
+        }
+
+        // Atualizar o número máximo de colunas
+        if ((int)len > game->cols) {
+            game->cols = (int)len;
+        }
+
+        // Realocar espaço no array de strings
+        char **temp = realloc(game->map, (game->rows + 1) * sizeof(char *));
+        if (!temp) {
+            perror("Erro de alocação de memória");
+            free(line);
+            for (int i = 0; i < game->rows; i++) {
+                free(game->map[i]);
+            }
+            free(game->map);
+            free(game);
+            close(fd);
+            return NULL;
+        }
+
+        game->map = temp;
+        game->map[game->rows++] = line;
+    }
+
+    close(fd);
+
+    if (game->rows == 0) {
+        printf("Erro: Arquivo vazio ou leitura falhou.\n");
+        free(game);
+        return NULL;
+    }
+
+    // Adicionar um ponteiro NULL ao final do array (opcional)
+    char **final_map = realloc(game->map, (game->rows + 1) * sizeof(char *));
+    if (!final_map) {
+        perror("Erro de alocação ao finalizar o array de mapa");
+        for (int i = 0; i < game->rows; i++) {
+            free(game->map[i]);
+        }
+        free(game->map);
+        free(game);
+        return NULL;
+    }
+
+    game->map = final_map;
+    game->map[game->rows] = NULL; // Termina o array com NULL
+    return game;
 }
 
-void init_game(t_game *game)
+void get_map(t_game *game, char **av)
+{
+   game = read_map_from_file(game, av[1]);
+}
+
+void init_game(t_game *game, char **av)
 {
     init_player(&game->player);
-    game->map = get_map();
+    get_map(game, av);
+    if(parse_map(game) == false)
+        printf("xablau map errado"), exit(0);//retorna funcao de erro 
     game->mlx = mlx_init();
     game->win = mlx_new_window(game->mlx, WIDTH, HEIGHT, "Game");
     game->img = mlx_new_image(game->mlx, WIDTH, HEIGHT);
     game->data = mlx_get_data_addr(game->img, &game->bpp, &game->size_line, &game->endian);
     mlx_put_image_to_window(game->mlx, game->win, game->img, 0, 0);
+   
 }
 
 // raycasting functions
@@ -154,17 +213,21 @@ int draw_loop(t_game *game)
     return 0;
 }
 
-int main(void)
+int main(int ac, char **av)
 {
+    //if(ac != 2)
+    (void)ac;  
     t_game game;
     // init
-    init_game(&game);
+    init_game(&game, av);
     // hooks
+    printf("xablau1\n");
     mlx_hook(game.win, 2, 1L<<0, key_press, &game.player);
     mlx_hook(game.win, 3, 1L<<1, key_release, &game.player);
     // draw loop
     mlx_loop_hook(game.mlx, draw_loop, &game);
-
+      printf("xablau555\n");
     mlx_loop(game.mlx);
+    printf("xablau666\n");
     return 0;
 }

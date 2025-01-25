@@ -6,7 +6,11 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <math.h>
+#include <string.h>
+#include <unistd.h>
+#include <fcntl.h>
 
+# define BUFFER_SIZE 10
 # define WIDTH 1280
 # define HEIGHT 720
 # define BLOCK 64
@@ -48,21 +52,15 @@ typedef struct s_game
     int endian;
     t_player player;
 
-    char **map;
-} t_game;
-
-typedef struct {
-    char **map;       
     int rows;        
     int cols;       
     int player_x; 
     int player_y;    
     char player_dir;
-    void		*mlx;
-	void		*wnd;
-    int         x;
-    int         y;
-} Map;
+    int x;
+    int y;
+    char **map;
+} t_game;
 
 void init_player(t_player *player);
 int key_release(int keycode, t_player *player);
@@ -80,5 +78,5 @@ char	*buffer_total_clear(int fd, char **buffer, char *line);
 
 //parsing map 
 
-bool parse_map(Map *map);4
+bool parse_map(t_game *map);
 #endif
