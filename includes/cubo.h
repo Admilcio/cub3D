@@ -62,7 +62,7 @@ typedef struct s_game
     char **map;
 } t_game;
 
-void init_player(t_player *player);
+void init_player(t_player *player, char **map);
 int key_release(int keycode, t_player *player);
 int key_press(int keycode, t_player *player);
 void move_player(t_player *player);

@@ -6,18 +6,41 @@
 void fill_map_lines_with_spaces(char **map, int rows, int max_cols) {
     int line_length;
     for (int i = 0; i < rows; i++) {
-            line_length = strlen(map[i]);
-        if (line_length < max_cols) {
+        line_length = strlen(map[i]);
+
+        // Se a linha começa com algo diferente de '1', preenche com '_'
+        if (map[i][0] != '1') {
+            // Realocar memória para a linha, completando com '_'
             map[i] = realloc(map[i], max_cols + 1);
             if (!map[i]) {
                 perror("Erro ao realocar linha do mapa");
                 exit(EXIT_FAILURE);
             }
+
+            // Preencher com '_' no começo
+            int j = 0;
+            while (j < max_cols - line_length && map[i][j] != '1') {
+                map[i][j++] = ' ';
+            }
+
+            // Completar o restante com '_'
+            memset(map[i] + j, ' ', max_cols - line_length - j);
+
+            map[i][max_cols] = '\0';
+        } if (line_length < max_cols) {
+            // Caso a linha comece com '1' e não tenha o tamanho correto, completar com '_'
+            map[i] = realloc(map[i], max_cols + 1);
+            if (!map[i]) {
+                perror("Erro ao realocar linha do mapa");
+                exit(EXIT_FAILURE);
+            }
+
             memset(map[i] + line_length, ' ', max_cols - line_length);
             map[i][max_cols] = '\0';
         }
     }
 }
+
 
 bool flood_fill(char **map, int rows, int cols, int x, int y, bool **visited) {
     if (x < 0 || y < 0 || x >= rows || y >= cols || visited[x][y]) {
@@ -93,13 +116,13 @@ bool check_borders(t_game *game) {
 
 bool parse_map(t_game *game) {
     int player_count = 0;
-    int i = 0;
-    while (game->map[i])
-    {
-        printf("%s\n", game->map[i]);
-        i++;
-    }
     fill_map_lines_with_spaces(game->map, game->rows, game->cols);
+    int k = 0;
+    while(game->map[k])
+    {
+        printf("%s\n", game->map[k]);
+        k++;
+    }
 
     for (int i = 0; i < game->rows; i++) {
         for (int j = 0; j < game->cols; j++) {

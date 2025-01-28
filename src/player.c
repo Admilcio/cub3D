@@ -1,18 +1,27 @@
 # include "../includes/cubo.h"
 
-void init_player(t_player *player)
+void init_player(t_player *player, char **map)
 {
+    for (int y = 0; map[y]; y++)
+    {
+        for (int x = 0; map[y][x]; x++)
+        {
+            if (map[y][x] == 'N')
+            {
+                player->x = x * BLOCK + BLOCK / 2;
+                player->y = y * BLOCK + BLOCK / 2;
+                player->angle = PI / 2;
+                return;
+            }
+        }
+    }
+
+    // Caso o 'N' não seja encontrado, define uma posição padrão
     player->x = WIDTH / 2;
     player->y = HEIGHT / 2;
     player->angle = PI / 2;
 
-    player->key_up = false;
-    player->key_down = false;
-    player->key_right = false;
-    player->key_left = false;
-
-    player->left_rotate = false;
-    player->right_rotate = false;
+    printf("Aviso: 'N' não encontrado no mapa. Posição inicial padrão aplicada.\n");
 }
 
 int key_press(int keycode, t_player *player)

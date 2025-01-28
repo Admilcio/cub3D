@@ -6,7 +6,7 @@ SRC = src/main.c src/player.c src/check_map.c src/get_next_line/get_next_line_ut
 OBJ = $(SRC:.c=.o)
 
 LFLAGS = -L./mlx -lmlx -lXext -lX11 -lm
-CFLAGS = -Wall -Wextra -Werror -Imlx/l
+CFLAGS = -Wall -Wextra -Werror -Imlx/l -g
 
 all: $(NAME)
 

@@ -68,12 +68,15 @@ bool touch_wall(float px, float py, t_game *game)
 {
     int x = px / BLOCK;
     int y = py / BLOCK;
-    if(game->map[y][x] == '1')
-        return true;
-    return false;
+
+    // Verifique se os índices estão fora dos limites do mapa
+    if (x < 0 || y < 0 || y >= game->rows || x >= game->cols) {
+        return false; // Fora do mapa, consideramos como não parede
+    }
+
+    return game->map[y][x] == '1';
 }
 
-// initialisation functions
 t_game *read_map_from_file(t_game *game , const char *filename) {
     int fd = open(filename, O_RDONLY);
     if (fd == -1) {
@@ -87,19 +90,16 @@ t_game *read_map_from_file(t_game *game , const char *filename) {
 
     char *line;
     while ((line = get_next_line(fd)) != NULL) {
-        // Remover '\n' no final da linha, se existir
         size_t len = strlen(line);
         if (len > 0 && line[len - 1] == '\n') {
             line[len - 1] = '\0';
             len--;
         }
 
-        // Atualizar o número máximo de colunas
         if ((int)len > game->cols) {
             game->cols = (int)len;
         }
 
-        // Realocar espaço no array de strings
         char **temp = realloc(game->map, (game->rows + 1) * sizeof(char *));
         if (!temp) {
             perror("Erro de alocação de memória");
@@ -141,16 +141,27 @@ t_game *read_map_from_file(t_game *game , const char *filename) {
     game->map[game->rows] = NULL; // Termina o array com NULL
     return game;
 }
-
+int	check_extension(const char *filename)
+{
+	return (strstr(filename, ".cub") != NULL);
+}
 void get_map(t_game *game, char **av)
 {
-   game = read_map_from_file(game, av[1]);
+    if(!check_extension(av[1]))
+    {
+        printf("Wrong filename : example.cub\n");
+        exit(1);
+    }
+    t_game *loaded_game = read_map_from_file(game, av[1]);
+    if (loaded_game)
+        *game = *loaded_game; // Copia os dados para o objeto original
 }
 
 void init_game(t_game *game, char **av)
 {
-    init_player(&game->player);
     get_map(game, av);
+    
+    init_player(&game->player, game->map);
     if(parse_map(game) == false)
         printf("xablau map errado"), exit(0);//retorna funcao de erro 
     game->mlx = mlx_init();
@@ -215,19 +226,35 @@ int draw_loop(t_game *game)
 
 int main(int ac, char **av)
 {
-    //if(ac != 2)
-    (void)ac;  
+    if (ac != 2) {
+        printf("Uso: ./programa <mapa>\n");
+        return 1;
+    }
+
     t_game game;
-    // init
+    memset(&game, 0, sizeof(t_game)); // Inicializa com zeros
+
+    // Inicialização
     init_game(&game, av);
-    // hooks
-    printf("xablau1\n");
-    mlx_hook(game.win, 2, 1L<<0, key_press, &game.player);
-    mlx_hook(game.win, 3, 1L<<1, key_release, &game.player);
-    // draw loop
+
+    if (!game.mlx) {
+        printf("Erro: mlx_init retornou NULL\n");
+        return 1;
+    }
+
+    if (!game.map) {
+        printf("Erro: Mapa não foi carregado corretamente\n");
+        return 1;
+    }
+
+    // Hooks
+    mlx_hook(game.win, 2, 1L << 0, key_press, &game.player);
+    mlx_hook(game.win, 3, 1L << 1, key_release, &game.player);
     mlx_loop_hook(game.mlx, draw_loop, &game);
-      printf("xablau555\n");
+    printf("xablau123\n");
+    // Loop principal
     mlx_loop(game.mlx);
-    printf("xablau666\n");
+    printf("xablau1234\n");
+
     return 0;
 }
