@@ -94,7 +94,7 @@ bool check_borders(t_game *game) {
     for (int i = 1; i < game->rows - 1; i++) {
         if (game->map[i][0] != '1') {
             {
-                    printf("entrou666\n");
+                if(game->map[i][0] != ' ')
                     return false;
             }
         }
@@ -104,12 +104,11 @@ bool check_borders(t_game *game) {
         {
             if (game->map[i][line_length - 1] != ' ')
             {
-                    printf("entrou666\n");
+                    printf("entrou6661\n");
                     return false;
             }
         }
     }
-    printf("xibliu\n");
     return true;
 }
 
