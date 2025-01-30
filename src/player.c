@@ -58,13 +58,14 @@ int key_release(int keycode, t_player *player)
     return 0;
 }
 
-void move_player(t_player *player)
+void move_player(t_player *player, t_game *game)
 {
     int speed = 3;
     float angle_speed = 0.03;
     float cos_angle = cos(player->angle);
     float sin_angle = sin(player->angle);
 
+    // Rotação do jogador
     if (player->left_rotate)
         player->angle -= angle_speed;
     if (player->right_rotate)
@@ -74,24 +75,34 @@ void move_player(t_player *player)
     if (player->angle < 0)
         player->angle = 2 * PI;
 
+    // Cálculo da próxima posição antes de mover
+    float next_x = player->x;
+    float next_y = player->y;
+
     if (player->key_up)
     {
-        player->x += cos_angle * speed;
-        player->y += sin_angle * speed;
+        next_x += cos_angle * speed;
+        next_y += sin_angle * speed;
     }
     if (player->key_down)
     {
-        player->x -= cos_angle * speed;
-        player->y -= sin_angle * speed;
+        next_x -= cos_angle * speed;
+        next_y -= sin_angle * speed;
     }
     if (player->key_left)
     {
-        player->x += sin_angle * speed;
-        player->y -= cos_angle * speed;
+        next_x += sin_angle * speed;
+        next_y -= cos_angle * speed;
     }
     if (player->key_right)
     {
-        player->x -= sin_angle * speed;
-        player->y += cos_angle * speed;
+        next_x -= sin_angle * speed;
+        next_y += cos_angle * speed;
     }
+
+    // Verifica colisão antes de atualizar a posição do jogador
+    if (!touch_wall(next_x, player->y, game)) 
+        player->x = next_x; // Move apenas se não colidir no eixo X
+    if (!touch_wall(player->x, next_y, game)) 
+        player->y = next_y; // Move apenas se não colidir no eixo Y
 }

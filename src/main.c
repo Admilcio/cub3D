@@ -204,7 +204,7 @@ void draw_line(t_player *player, t_game *game, float start_x, int i)
 int draw_loop(t_game *game)
 {
     t_player *player = &game->player;
-    move_player(player);
+    move_player(player, game);
     clear_image(game);
     if(DEBUG)
     {

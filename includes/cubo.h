@@ -14,7 +14,7 @@
 # define WIDTH 1280
 # define HEIGHT 720
 # define BLOCK 64
-# define DEBUG 1
+# define DEBUG 0
 
 # define W 119
 # define A 97
@@ -65,7 +65,8 @@ typedef struct s_game
 void init_player(t_player *player, char **map);
 int key_release(int keycode, t_player *player);
 int key_press(int keycode, t_player *player);
-void move_player(t_player *player);
+void move_player(t_player *player, t_game *game);
+bool touch_wall(float px, float py, t_game *game);
 
 //get next line
 char	*get_next_line(int fd);
